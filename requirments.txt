@@ -5,3 +5,4 @@ tiktoken
 openai==0.28.1
 streamlit
 python-dotenv
+azure-cognitiveservices-speech
