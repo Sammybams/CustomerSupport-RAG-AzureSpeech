@@ -15,7 +15,7 @@ load_dotenv()
 openai.api_key = os.getenv("API_KEY")
 openai.api_base = os.getenv("ENDPOINT")
 openai.api_type = "azure"  # Necessary for using the OpenAI library with Azure OpenAI
-openai.api_version = "2023-05-15"  # Latest / target version of the API
+openai.api_version = "2024-02-01"  # Latest / target version of the API
 
 import streamlit as st
 

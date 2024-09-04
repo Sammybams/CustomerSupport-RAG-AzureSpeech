@@ -1,4 +1,7 @@
 *.env
 /bin/
 /lib/
+/etc/
+/include/
+/share/
 pyvenv.cfg

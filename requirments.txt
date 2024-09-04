@@ -1,8 +1,0 @@
-PyPDF2
-pypdf
-tiktoken
-"langchain[docarray]"
-openai==0.28.1
-streamlit
-python-dotenv
-azure-cognitiveservices-speech
