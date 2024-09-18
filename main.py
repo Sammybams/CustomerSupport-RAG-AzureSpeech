@@ -1,6 +1,6 @@
 # Streamlit
 import streamlit as st
-st.set_page_config(page_title="Customer Support Solution", page_icon="")
+st.set_page_config(page_title="Contoso Electronics Support Solution", page_icon="🤖")
 
 import os
 from src.rag_model import get_conversation_summary
@@ -15,6 +15,8 @@ import openai
 # Get Configuration Settings
 from dotenv import load_dotenv
 load_dotenv()
+
+st.title("Contoso Electronics Support")
 
 # Configure OpenAI API using Azure OpenAI
 openai.api_key = os.getenv("API_KEY")
