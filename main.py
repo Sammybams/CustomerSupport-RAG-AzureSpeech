@@ -3,6 +3,7 @@ import streamlit as st
 st.set_page_config(page_title="Customer Support Solution", page_icon="")
 
 import os
+from src.rag_model import get_conversation_summary
 
 # Langchain components
 from langchain.chains import RetrievalQA
@@ -16,10 +17,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure OpenAI API using Azure OpenAI
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("API_KEY")
 openai.api_base = os.getenv("ENDPOINT")
 openai.api_type = "azure"  # Necessary for using the OpenAI library with Azure OpenAI
-openai.api_version = "2024-02-01"  # Latest / target version of the API
+openai.api_version = os.getenv("OPENAI_API_VERSION")  # Latest / target version of the API
 
 # Implementation
 from langchain.embeddings import OpenAIEmbeddings
@@ -41,8 +42,7 @@ from langchain import PromptTemplate
 # Prompt Template
 template_j = """
 Use the following context (delimited by <ctx></ctx>) and the chat history (delimited by <hs></hs>) to answer the user's question. 
-All bible texts are to referenced with King James Version. You can give info on bible texts.
-If you don't know the answer, just say that you don't know, don't try to make up an answer. Refer to the context provided as "the Junior Sunday school lessons".
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
 ------
 <ctx>
 {context}
@@ -104,14 +104,6 @@ if 'qa_stuff' not in st.session_state:
 # Chatbot interface using streamlit and maintain chat history
 
 def chatbot_interface():
-    # st.title("Chat with the OpenAI Chatbot")
-    # st.write("This is a simple chatbot interface using OpenAI's GPT-3 model.")
-    # st.write("Please type your message in the chat box below and press Enter to send it to the chatbot.")
-    # st.write("The chatbot will respond with a message based on the input you provide.")
-
-    # # Initialize the chatbot model
-    # chatbot = ChatOpenAI()
-
     # Initialize session state for chat history
     if 'history' not in st.session_state:
         st.session_state.history = []
@@ -120,6 +112,7 @@ def chatbot_interface():
 
     with st.container():
         # messages = st.container(height=1000)
+
         # Display chat history 
         for chat in st.session_state.history:
             st.chat_message("user").write(chat["user"])
@@ -127,9 +120,19 @@ def chatbot_interface():
             # messages.chat_message("assistant").write(response)
 
     if prompt := st.chat_input("Message Gospel Companion"):
+
+        # Advanced RAG Model
+        full_history = ""
+        for hist in  st.session_state.history:
+            full_history += hist["user"] + "\n" + hist["assistant"] + "\n"
+
+        # full_history = st.session_state.history
+        print("History: ", st.session_state.history)
+        context_aware_prompt = get_conversation_summary(full_history, prompt)
+
         # messages.chat_message("user").write(prompt)
         st.chat_message("user").write(prompt)
-        response = st.session_state.qa_stuff.run(prompt)
+        response = st.session_state.qa_stuff.run(context_aware_prompt)
         st.chat_message("assistant").write(response)
         st.session_state.history.append({"user": prompt, "assistant": response})
         st.rerun()
