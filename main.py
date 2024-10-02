@@ -76,22 +76,22 @@ llm = ChatOpenAI(temperature = 0.3, openai_api_key = os.getenv("API_KEY"), opena
 from langchain_chroma import Chroma
 
 # Junior
-vector_store_junior = Chroma(
-    collection_name="Junior_Lessons",
+vector_store_contoso = Chroma(
+    collection_name="Contoso-Outdoor-Docs",
     embedding_function=openai_embeddings,
-    persist_directory="/Users/mac/Documents/Gospel-Companion/chroma_afc_sunday_school_lessons_db",  # Where to save data locally, remove if not neccesary
+    persist_directory="./Contoso-Outdoor-Vector-DB",  # Where to save data locally, remove if not neccesary
 )
 
 # QA Model
 
-retriever_j = vector_store_junior.as_retriever(search_kwargs={'k': 3})
+retriever = vector_store_contoso.as_retriever(search_kwargs={'k': 3})
 
 # Initialize session state for qa_stuff
 if 'qa_stuff' not in st.session_state:
     st.session_state.qa_stuff = RetrievalQA.from_chain_type(
                                     llm = llm, 
                                     chain_type = "stuff", 
-                                    retriever = retriever_j, 
+                                    retriever = retriever, 
                                     verbose = False,
                                     chain_type_kwargs = {
                                         "verbose": True,
@@ -126,11 +126,16 @@ def chatbot_interface():
         # Advanced RAG Model
         full_history = ""
         for hist in  st.session_state.history:
-            full_history += hist["user"] + "\n" + hist["assistant"] + "\n"
+            full_history += "Human: " + hist["user"] + "\n" + "AI: " + hist["assistant"] + "\n"
 
         # full_history = st.session_state.history
         print("History: ", st.session_state.history)
-        context_aware_prompt = get_conversation_summary(full_history, prompt)
+        if len(st.session_state.history) > 0:
+            context_aware_prompt = get_conversation_summary(full_history, prompt)
+        else:
+            context_aware_prompt = prompt
+
+        print(f"full_history {full_history}")
 
         # messages.chat_message("user").write(prompt)
         st.chat_message("user").write(prompt)
